@@ -1,23 +1,28 @@
-# AWS LocalStack Demo 🚀
+# Document Management System 📁
 
-Proyecto de demostración para trabajar con **AWS S3** usando **LocalStack** y **Maven**. Ideal para aprender y practicar operaciones de S3 sin costos de AWS.
+Sistema de gestión documental con **Spring Boot**, **AWS S3** y **LocalStack**. API REST completa para subir, listar, descargar y eliminar documentos en S3.
 
 ## 📋 Características
 
-- ✅ Creación de buckets S3
-- ✅ Subida de archivos
-- ✅ Listado de objetos
+- ✅ **API REST** completa con Spring Boot
+- ✅ Subida de documentos a S3
+- ✅ Listado de documentos con metadatos
 - ✅ Descarga de archivos
+- ✅ Eliminación de documentos
+- ✅ Arquitectura en capas (Controller → Service → S3)
+- ✅ LocalStack para desarrollo sin costos AWS
 - ✅ Tests de integración con JUnit 5
-- ✅ AWS SDK v2 (última versión)
+- ✅ Logging con SLF4J
 
 ## 🛠️ Tecnologías
 
 - **Java 17**
-- **Maven**
-- **AWS SDK v2**
-- **LocalStack** (simula servicios AWS localmente)
-- **JUnit 5** (testing)
+- **Spring Boot 3.2.2** (Framework backend)
+- **Maven** (Gestión de dependencias)
+- **AWS SDK v2** (Cliente S3)
+- **LocalStack** (Simula AWS S3 localmente)
+- **Lombok** (Reduce boilerplate code)
+- **JUnit 5** (Testing)
 
 ## 📦 Requisitos Previos
 
@@ -61,44 +66,139 @@ services:
     volumes:
       - "./localstack-data:/tmp/localstack"
 ```
-
-## 🚀 Instalación y Uso
-
-### 1. Clonar el repositorio
-```bash
-git clone <tu-repo>
+https://github.com/alex5perez/aws-localstack-demo.git
 cd aws-localstack-demo
 ```
 
-### 2. Compilar el proyecto
+### 2. Levantar LocalStack
 ```bash
-mvn clean compile
+docker-compose up -d
 ```
 
-### 3. Ejecutar la aplicación
+### 3. Compilar el proyecto
 ```bash
-mvn exec:java -Dexec.mainClass="com.alexp.aws.S3LocalStackDemo"
+mvn clean install
 ```
 
-### Salida esperada:
+### 4. Ejecutar la aplicación
+```bash
+mvn spring-boot:run
 ```
-=== AWS S3 LocalStack Demo ===
 
-✓ Bucket created: demo-bucket
-✓ File uploaded: test-file.txt
+La API estará disponible en: **http://localhost:8080**
 
---- Objects in bucket 'demo-bucket': ---
-  - test-file.txt (Size: 42 bytes)
+---
 
---- Downloading file: test-file.txt ---
-Content: Hello from LocalStack! This is a demo file.
+## 📡 Endpoints de la API
 
-✓ Demo completed successfully!
+### 🔹 Health Check
+```bash
+GET /api/documents/health
 ```
+```bash
+curl http://localhost:8080/api/documents/health
+```
+
+### 🔹 Subir Documento
+```bash
+POST /api/documents
+```
+```bash
+curl -X POST http://localhost:8080/api/documents \
+  -F "file=@documento.pdf" \
+  -F "name=Factura Enero 2024"
+```
+
+**Respuesta:**
+```json
+{
+  "id": "abc-123-def",
+  "name": "Factura Enero 2024",
+  "fileName": "documento.pdf",
+  "contentType": "application/pdf",
+  "size": 245678,
+  "s3Key├── java/com/alexp/aws/
+│   │   │   ├── DocumentManagementApplication.java  # Clase principal
+│   │   │   ├── controller/
+│   │   │   │   └── DocumentController.java         # Endpoints REST
+│   │   │   ├── service/
+│   │   │   │   └── DocumentService.java            # Lógica de negocio
+│   │   │   ├── config/
+│   │   │   │   └── S3Config.java                   # Configuración S3
+│   │   │   └── model/
+│   │   │       └── Document.java                   # Modelo de datos
+│   │   └── resources/
+│   │       └── application.properties              # Configuración
+│   └── test/
+│       └── java/com/alexp/aws/
+Mejoras planeadas para próximas versiones:
+
+- [ ] **Autenticación JWT**: Añadir seguridad con Spring Security
+- [ ] **Base de datos**: Guardar metadatos en PostgreSQL/DynamoDB
+- [ ] **Búsqueda**: Implementar búsqueda por nombre, fecha, tipo
+- [ ] **Versionado**: Control de versiones de documentos
+- [ ] **Swagger/OpenAPI**: Documentación automática de la API
+- [ ] **Docker**: Dockerfile y docker-compose completo
+- [ ] **Tests avanzados**: Tests de integración completos
+- [ ] **Paginación**: Listar documentos con paginación
+```
+HTTP Request
+     ↓
+┌─────────────────────┐
+│  DocumentController │  ← Capa de presentación (REST API)
+└──────────┬──────────┘
+           ↓
+┌─────────────────────┐
+│  DocumentService    │  ← Capa de lógica de negocio
+└──────────┬──────────┘
+           ↓
+┌─────────────────────┐
+│  S3Client (AWS SDK) │  ← Capa de acceso a datos
+└──────────┬──────────┘
+           ↓
+      LocalStack S3
+curl http://localhost:8080/api/documents
+```
+
+**Respuesta:**
+```json
+[
+  {
+    "id": "abc-123-def",
+    "fileName": "abc-123-def-documento.pdf",
+    "s3Key": "documents/abc-123-def-documento.pdf",
+    "size": 245678,
+    "uploadDate": "2026-02-06T15:30:00"
+  }
+]
+```
+
+### 🔹 Descargar Documento
+```bash
+GET /api/documents/{id}/download
+```
+```bash
+curl http://localhost:8080/api/documents/abc-123-def/download -o archivo.pdf
+```
+
+### 🔹 Eliminar Documento
+```bash
+DELETE /api/documents/{id}
+```
+```bash
+curl -X DELETE http://localhost:8080/api/documents/abc-123-def
+```
+
+---
 
 ## 🧪 Ejecutar Tests
 
 ```bash
+# Todos los tests
+mvn test
+
+# Con cobertura
+mvn test jacoco:repor
 # Todos los tests
 mvn test
 
@@ -125,19 +225,34 @@ aws-localstack-demo/
 ```
 
 ## 🎯 Próximos Pasos
+� Conceptos Aprendidos
 
-Ideas para extender este proyecto:
+Este proyecto demuestra:
+- ✅ Arquitectura en capas (Controller-Service-Client)
+- ✅ Inyección de dependencias con Spring
+- ✅ Configuración externalizada con `application.properties`
+- ✅ API REST con Spring Boot
+- ✅ Integración con AWS S3
+- ✅ Testing en entornos locales con LocalStack
+- ✅ Uso de Lombok para reducir código boilerplate
+- ✅ Manejo de archivos con `MultipartFile`
+- ✅ Logging con SLF4J
 
-- [ ] Añadir operaciones de eliminación de objetos
-- [ ] Implementar versionado de objetos
-- [ ] Añadir metadatos a los archivos
-- [ ] Integrar con otros servicios AWS (DynamoDB, SQS, etc.)
-- [ ] Crear una API REST con Spring Boot
-- [ ] Añadir manejo de archivos grandes (multipart upload)
+---
 
-## 🔧 Troubleshooting
+## 📄 Licencia
 
-### Error: "Connection refused" al ejecutar
+Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+
+## 👤 Autor
+
+**Alex Pérez**
+- GitHub: [@alex5perez](https://github.com/alex5perez)
+- Portfolio profesional mostrando dominio de Java, Spring Boot, AWS y arquitecturas modernas
+
+---
+
+⭐ **Si este proyecto te fue útil, considera darle una estrella en GitHub!**
 **Solución**: Verifica que LocalStack esté corriendo:
 ```bash
 docker ps | grep localstack
