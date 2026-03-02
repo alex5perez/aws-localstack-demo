@@ -47,6 +47,13 @@ public class DocumentController {
      * @param name Nombre descriptivo del documento
      * @return ResponseEntity con el documento creado y status 201 (CREATED)
      * 
+     * Validaciones:
+     * - Archivo no vacío (manejado por DocumentService)
+     * - Tamaño máximo 10MB (manejado por DocumentService y Spring)
+     * - Tipos de archivo permitidos (manejado por DocumentService)
+     * 
+     * Las excepciones son capturadas automáticamente por GlobalExceptionHandler
+     * 
      * Ejemplo de uso con curl:
      * curl -X POST http://localhost:8080/api/documents \
      *   -F "file=@documento.pdf" \
@@ -57,25 +64,16 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("name") String name) {
         
-        log.info("Received upload request: name={}, fileName={}, size={}", 
+        log.info("Received upload request: name={}, fileName={}, size={} bytes", 
                 name, file.getOriginalFilename(), file.getSize());
 
-        try {
-            // Validaciones básicas
-            if (file.isEmpty()) {
-                log.warn("Empty file received");
-                return ResponseEntity.badRequest().build();
-            }
-
-            Document document = documentService.uploadDocument(file, name);
-            log.info("Document uploaded successfully: {}", document.getId());
-            
-            return ResponseEntity.status(HttpStatus.CREATED).body(document);
-            
-        } catch (IOException e) {
-            log.error("Error uploading document", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        // Las validaciones están en DocumentService
+        // Si hay error, lanza excepción que GlobalExceptionHandler capturará
+        Document document = documentService.uploadDocument(file, name);
+        
+        log.info("Document uploaded successfully: {}", document.getId());
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(document);
     }
 
     /**
@@ -104,6 +102,9 @@ public class DocumentController {
      * @param id ID del documento a descargar
      * @return Archivo como ByteArrayResource
      * 
+     * Si el documento no existe, DocumentService lanza DocumentNotFoundException
+     * que GlobalExceptionHandler captura y devuelve HTTP 404
+     * 
      * Ejemplo de uso con curl:
      * curl http://localhost:8080/api/documents/abc-123-def/download -o archivo.pdf
      */
@@ -111,20 +112,15 @@ public class DocumentController {
     public ResponseEntity<ByteArrayResource> downloadDocument(@PathVariable String id) {
         log.info("Received download request for document: {}", id);
         
-        try {
-            byte[] data = documentService.downloadDocument(id);
-            ByteArrayResource resource = new ByteArrayResource(data);
-            
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"document-" + id + "\"")
-                    .contentLength(data.length)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
-                    
-        } catch (RuntimeException e) {
-            log.error("Error downloading document: {}", id, e);
-            return ResponseEntity.notFound().build();
-        }
+        // Si no existe, lanza DocumentNotFoundException → HTTP 404
+        byte[] data = documentService.downloadDocument(id);
+        ByteArrayResource resource = new ByteArrayResource(data);
+        
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"document-" + id + "\"")
+                .contentLength(data.length)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
     /**
@@ -134,6 +130,9 @@ public class DocumentController {
      * @param id ID del documento a eliminar
      * @return ResponseEntity con status 204 (NO_CONTENT) si se eliminó correctamente
      * 
+     * Si el documento no existe, DocumentService lanza DocumentNotFoundException
+     * que GlobalExceptionHandler captura y devuelve HTTP 404
+     * 
      * Ejemplo de uso con curl:
      * curl -X DELETE http://localhost:8080/api/documents/abc-123-def
      */
@@ -141,15 +140,11 @@ public class DocumentController {
     public ResponseEntity<Void> deleteDocument(@PathVariable String id) {
         log.info("Received delete request for document: {}", id);
         
-        try {
-            documentService.deleteDocument(id);
-            log.info("Document deleted successfully: {}", id);
-            return ResponseEntity.noContent().build();
-            
-        } catch (RuntimeException e) {
-            log.error("Error deleting document: {}", id, e);
-            return ResponseEntity.notFound().build();
-        }
+        // Si no existe, lanza DocumentNotFoundException → HTTP 404
+        documentService.deleteDocument(id);
+        
+        log.info("Document deleted successfully: {}", id);
+        return ResponseEntity.noContent().build();
     }
 
     /**
