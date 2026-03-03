@@ -322,15 +322,13 @@ public class DocumentService {
 
     /**
      * Extrae el ID del nombre del archivo
-     * Ejemplo: "abc-123-def-archivo.pdf" -> "abc-123-def"
+     * Ejemplo: "eaf1811c-b4ce-4417-87c7-c5177000e933-test-upload.txt" -> "eaf1811c-b4ce-4417-87c7-c5177000e933"
+     * El UUID siempre tiene 36 caracteres (formato: 8-4-4-4-12)
      */
     private String extractIdFromKey(String fileName) {
-        int dashIndex = fileName.indexOf('-');
-        if (dashIndex > 0) {
-            int lastDashIndex = fileName.lastIndexOf('-');
-            if (lastDashIndex > dashIndex) {
-                return fileName.substring(0, lastDashIndex);
-            }
+        // El UUID siempre son los primeros 36 caracteres
+        if (fileName.length() >= 36) {
+            return fileName.substring(0, 36);
         }
         return fileName;
     }
