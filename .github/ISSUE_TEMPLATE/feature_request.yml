@@ -1,0 +1,58 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature! Help us understand your idea.
+  
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve?
+      placeholder: As a user, I want to... because...
+    validations:
+      required: true
+  
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this feature work?
+      placeholder: Describe your ideal solution...
+    validations:
+      required: true
+  
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered other approaches?
+  
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low - Nice to have
+        - Medium - Would improve UX
+        - High - Critical for adoption
+    validations:
+      required: true
+  
+  - type: dropdown
+    id: sprint
+    attributes:
+      label: Related Sprint (from ROADMAP.md)
+      options:
+        - Sprint 1 - Testing & CI/CD
+        - Sprint 2 - Persistence & Search
+        - Sprint 3 - Security & Auth
+        - Sprint 4 - Advanced Features
+        - Sprint 5 - Observability
+        - Sprint 6 - Documentation
+        - Future Sprints
+        - Not in roadmap

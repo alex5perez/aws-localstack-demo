@@ -2,6 +2,8 @@
 
 Sistema de gestión documental profesional con **Spring Boot**, **AWS S3** y **LocalStack**. API REST completa para almacenar, gestionar y distribuir documentos en la nube.
 
+> **🚀 ¿NUEVO AQUÍ?** Lee primero: **[EMPEZAR_AQUI.md](EMPEZAR_AQUI.md)** (plan simple de 5 pasos)
+
 ---
 
 ## 🎯 ¿Qué Problema Resuelve?
