@@ -23,7 +23,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <aws.sdk.version>2.20.26</aws.sdk.version>
+        <aws.sdk.version>2.30.29</aws.sdk.version>
     </properties>
 
     <dependencies>
