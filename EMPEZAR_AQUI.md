@@ -1,4 +1,8 @@
-# 🎯 EMPIEZA AQUÍ - Plan Ultra Simple
+# 🎯 EMPIEZA AQUÍ - Guía de Inicio Rápido
+
+## 🚀 Proyecto: Document Management System
+
+Sistema profesional de gestión documental con Spring Boot, AWS S3 y LocalStack.
 
 ## ❌ NO LEAS (por ahora):
 - ~~ROADMAP.md~~ (muy largo, para después)
