@@ -1,5 +1,10 @@
 # Document Management System 📁
 
+[![CI Pipeline](https://github.com/alex5perez/aws-localstack-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/alex5perez/aws-localstack-demo/actions/workflows/ci.yml)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Sistema de gestión documental profesional con **Spring Boot 3.4**, **Java 21**, **AWS S3** y **LocalStack**. API REST completa para almacenar, gestionar y distribuir documentos en la nube.
 
 > **🚀 ¿NUEVO AQUÍ?** Lee primero: **[EMPEZAR_AQUI.md](EMPEZAR_AQUI.md)** (plan simple de 5 pasos)
