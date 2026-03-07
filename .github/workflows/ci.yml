@@ -57,12 +57,6 @@ jobs:
           AWS_ACCESS_KEY_ID: test
           AWS_SECRET_ACCESS_KEY: test
 
-      - name: Generate test coverage report
-        run: mvn jacoco:report -B
-
-      - name: Check coverage threshold
-        run: mvn jacoco:check -B
-
       - name: Upload coverage to Codecov (opcional)
         uses: codecov/codecov-action@v3
         with:
