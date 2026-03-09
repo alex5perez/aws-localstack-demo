@@ -1,0 +1,334 @@
+{
+  "info": {
+    "name": "Document Management API",
+    "description": "Collection completa para probar la API de gestión documental con Spring Boot y AWS S3/LocalStack",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "doc-mgmt-api-v1",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/documents/health",
+          "host": ["{{base_url}}"],
+          "path": ["api", "documents", "health"]
+        },
+        "description": "Verifica que el servidor está corriendo correctamente"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/documents/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "documents", "health"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "plain",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain"
+            }
+          ],
+          "body": "Service is running!"
+        }
+      ]
+    },
+    {
+      "name": "Upload Document",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    const jsonData = pm.response.json();",
+              "    pm.environment.set('document_id', jsonData.id);",
+              "    pm.test('Response has document ID', function () {",
+              "        pm.expect(jsonData.id).to.be.a('string');",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "/path/to/your/document.pdf",
+              "description": "Selecciona un archivo PDF, Word, Excel, PowerPoint o imagen"
+            },
+            {
+              "key": "name",
+              "value": "Test Document",
+              "type": "text",
+              "description": "Nombre descriptivo del documento"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/documents",
+          "host": ["{{base_url}}"],
+          "path": ["api", "documents"]
+        },
+        "description": "Sube un nuevo documento a S3. Tipos permitidos: PDF, Word, Excel, PowerPoint, imágenes. Tamaño máximo: 10MB"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "test.pdf"
+                },
+                {
+                  "key": "name",
+                  "value": "Test Document",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/documents",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "documents"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n    \"id\": \"7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f\",\n    \"fileName\": \"7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f-test.pdf\",\n    \"s3Key\": \"documents/7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f-test.pdf\",\n    \"size\": 245678,\n    \"uploadDate\": \"2026-03-09T10:30:00\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "List All Documents",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/documents",
+          "host": ["{{base_url}}"],
+          "path": ["api", "documents"]
+        },
+        "description": "Obtiene la lista de todos los documentos almacenados con sus metadatos"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/documents",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "documents"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "[\n    {\n        \"id\": \"7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f\",\n        \"fileName\": \"7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f-contract.pdf\",\n        \"s3Key\": \"documents/7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f-contract.pdf\",\n        \"size\": 342567,\n        \"uploadDate\": \"2026-03-09T10:30:00\"\n    },\n    {\n        \"id\": \"9b4e2c5f-6d1a-4e8b-a3c7-8f9a0b1c2d3e\",\n        \"fileName\": \"9b4e2c5f-6d1a-4e8b-a3c7-8f9a0b1c2d3e-invoice.pdf\",\n        \"s3Key\": \"documents/9b4e2c5f-6d1a-4e8b-a3c7-8f9a0b1c2d3e-invoice.pdf\",\n        \"size\": 125678,\n        \"uploadDate\": \"2026-03-09T11:45:00\"\n    }\n]"
+        }
+      ]
+    },
+    {
+      "name": "Download Document",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/documents/{{document_id}}/download",
+          "host": ["{{base_url}}"],
+          "path": ["api", "documents", "{{document_id}}", "download"]
+        },
+        "description": "Descarga un documento específico por su ID. El archivo se descargará automáticamente."
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/documents/7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f/download",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "documents", "7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f", "download"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "raw",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/octet-stream"
+            },
+            {
+              "key": "Content-Disposition",
+              "value": "attachment; filename=\"document.pdf\""
+            }
+          ],
+          "body": "[Binary file content]"
+        }
+      ]
+    },
+    {
+      "name": "Delete Document",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/documents/{{document_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "documents", "{{document_id}}"]
+        },
+        "description": "Elimina un documento específico de S3 por su ID"
+      },
+      "response": [
+        {
+          "name": "Success Response",
+          "originalRequest": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/documents/7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "documents", "7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "plain",
+          "header": [],
+          "body": ""
+        }
+      ]
+    },
+    {
+      "name": "Upload Invalid File (Error Test)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "/path/to/large/file.zip",
+              "description": "Archivo muy grande (>10MB) para probar validación"
+            },
+            {
+              "key": "name",
+              "value": "Large File Test",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/api/documents",
+          "host": ["{{base_url}}"],
+          "path": ["api", "documents"]
+        },
+        "description": "Prueba de manejo de errores: intenta subir un archivo inválido (muy grande o tipo no permitido)"
+      },
+      "response": [
+        {
+          "name": "Error Response - File Too Large",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "large.zip"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/documents",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "documents"]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": "{\n    \"status\": 400,\n    \"message\": \"File size exceeds maximum allowed (10MB)\",\n    \"timestamp\": \"2026-03-09T10:35:00\"\n}"
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "document_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

@@ -160,6 +160,8 @@ La API estará disponible en: **http://localhost:8080**
 
 ## 📡 Endpoints de la API
 
+> 💡 **Tip:** Importa la [Postman Collection](postman_collection.json) para probar todos los endpoints fácilmente. Incluye ejemplos de respuestas y tests automáticos.
+
 ### 🔹 Health Check
 ```bash
 GET /api/documents/health
