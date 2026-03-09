@@ -260,7 +260,111 @@ curl -X DELETE http://localhost:8080/api/documents/abc-123-def
 
 ---
 
-## 🛡️ Validaciones y Seguridad
+## � Ejemplos Prácticos de Uso
+
+### **Escenario 1: Subir un Contrato PDF**
+
+```bash
+# 1. Verificar que el servidor está corriendo
+curl http://localhost:8080/api/documents/health
+
+# 2. Subir el contrato
+curl -X POST http://localhost:8080/api/documents \
+  -F "file=@contrato_empleado.pdf" \
+  -F "name=Contrato de Juan Pérez"
+
+# Respuesta:
+# {
+#   "id": "7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f",
+#   "fileName": "7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f-contrato_empleado.pdf",
+#   "size": 342567,
+#   "uploadDate": "2026-03-09T10:30:00"
+# }
+```
+
+### **Escenario 2: Listar Todos los Documentos**
+
+```bash
+curl http://localhost:8080/api/documents
+
+# Respuesta:
+# [
+#   {
+#     "id": "7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f",
+#     "fileName": "7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f-contrato_empleado.pdf",
+#     "size": 342567
+#   },
+#   {
+#     "id": "9b4e2c5f-6d1a-4e8b-a3c7-8f9a0b1c2d3e",
+#     "fileName": "9b4e2c5f-6d1a-4e8b-a3c7-8f9a0b1c2d3e-factura.pdf",
+#     "size": 125678
+#   }
+# ]
+```
+
+### **Escenario 3: Descargar un Documento Específico**
+
+```bash
+# Reemplaza {document-id} con el ID real obtenido del listado
+curl http://localhost:8080/api/documents/7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f/download \
+  -o contrato_descargado.pdf
+
+# El archivo se guarda como contrato_descargado.pdf
+```
+
+### **Escenario 4: Eliminar un Documento**
+
+```bash
+curl -X DELETE http://localhost:8080/api/documents/7a2f3e1d-4b8c-4a1f-9d2e-5c6b7a8d9e0f
+
+# Respuesta: 200 OK (sin contenido)
+```
+
+### **Escenario 5: Manejo de Errores**
+
+```bash
+# Intentar subir archivo muy grande (>10MB)
+curl -X POST http://localhost:8080/api/documents \
+  -F "file=@documento_grande.pdf" \
+  -F "name=Documento Grande"
+
+# Respuesta de error:
+# {
+#   "status": 400,
+#   "message": "File size exceeds maximum allowed (10MB)",
+#   "timestamp": "2026-03-09T10:35:00"
+# }
+
+# Intentar descargar documento inexistente
+curl http://localhost:8080/api/documents/id-no-existe/download
+
+# Respuesta de error:
+# {
+#   "status": 404,
+#   "message": "Document not found with ID: id-no-existe",
+#   "timestamp": "2026-03-09T10:36:00"
+# }
+```
+
+### **Usando PowerShell (Windows)**
+
+```powershell
+# Subir documento
+$file = Get-Item "C:\Documents\contrato.pdf"
+$uri = "http://localhost:8080/api/documents"
+Invoke-WebRequest -Uri $uri -Method Post -InFile $file.FullName
+
+# Listar documentos
+Invoke-RestMethod -Uri "http://localhost:8080/api/documents" | ConvertTo-Json
+
+# Descargar documento
+Invoke-WebRequest -Uri "http://localhost:8080/api/documents/{id}/download" `
+  -OutFile "documento_descargado.pdf"
+```
+
+---
+
+## �🛡️ Validaciones y Seguridad
 
 El sistema implementa **validaciones robustas** para garantizar seguridad y calidad:
 
