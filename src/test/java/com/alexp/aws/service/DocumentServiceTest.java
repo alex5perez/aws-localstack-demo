@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -349,14 +350,14 @@ class DocumentServiceTest {
 
         @Test
         @DisplayName("Should download document successfully")
-        @org.junit.jupiter.api.Disabled("TODO: Fix mock to match actual DocumentService logic")
         void shouldDownloadDocumentSuccessfully() {
             // Given
-            String documentId = "test-id-123";
-            String s3Key = "documents/" + documentId + "-file.pdf";
+            String documentId = "eaf1811c-b4ce-4417-87c7-c5177000e933";
+            String fileName = documentId + "-test-file.pdf";
+            String s3Key = "documents/" + fileName;
             byte[] fileContent = "PDF content".getBytes();
 
-            // Mock listObjects
+            // Mock listObjects (llamado por downloadDocument -> listDocuments)
             S3Object s3Object = S3Object.builder()
                     .key(s3Key)
                     .size((long) fileContent.length)
@@ -367,21 +368,22 @@ class DocumentServiceTest {
                             .contents(List.of(s3Object))
                             .build());
 
-            // Mock getObject
-            ResponseInputStream mockInputStream = new ResponseInputStream<>(
-                    GetObjectResponse.builder().build(),
-                    new ByteArrayInputStream(fileContent)
+            // Mock getObjectAsBytes (no getObject)
+            GetObjectResponse getObjectResponse = GetObjectResponse.builder().build();
+            ResponseBytes<GetObjectResponse> responseBytes = ResponseBytes.fromByteArray(
+                    getObjectResponse,
+                    fileContent
             );
 
-            when(s3Client.getObject(any(GetObjectRequest.class)))
-                    .thenReturn(mockInputStream);
+            when(s3Client.getObjectAsBytes(any(GetObjectRequest.class)))
+                    .thenReturn(responseBytes);
 
             // When
             byte[] result = documentService.downloadDocument(documentId);
 
             // Then
             assertThat(result).isEqualTo(fileContent);
-            verify(s3Client).getObject(any(GetObjectRequest.class));
+            verify(s3Client).getObjectAsBytes(any(GetObjectRequest.class));
         }
     }
 
@@ -405,14 +407,16 @@ class DocumentServiceTest {
 
         @Test
         @DisplayName("Should delete document successfully")
-        @org.junit.jupiter.api.Disabled("TODO: Fix mock to match actual DocumentService logic")
         void shouldDeleteDocumentSuccessfully() {
             // Given
-            String documentId = "test-id";
-            String s3Key = "documents/" + documentId + "-file.pdf";
+            String documentId = "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d";
+            String fileName = documentId + "-test-document.pdf";
+            String s3Key = "documents/" + fileName;
 
+            // Mock listObjects (llamado por deleteDocument -> listDocuments)
             S3Object s3Object = S3Object.builder()
                     .key(s3Key)
+                    .size(1024L)
                     .build();
 
             when(s3Client.listObjectsV2(any(ListObjectsV2Request.class)))
